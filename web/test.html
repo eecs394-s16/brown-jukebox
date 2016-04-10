@@ -1,0 +1,23 @@
+<!doctype html>
+<html ng-app = "myApp">
+	<head>
+	<script src = "http://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js">
+	</script>
+	<script>
+	myApp = angular.module('myApp', []);
+	myApp.controller('myController', function($scope, $http){
+		$http.get('/songs').success(function(response){
+			$scope.myData = response;
+		});
+	});
+	</script>
+	</head>
+	<body ng-controller="myController">
+		<table border = 1>
+			<tr ng-repeat = "data in myData">
+				<td>{{data.ID}}</td>
+				<td>{{data.title}}</td>
+			</tr>
+		</table>
+	</body>
+</html>

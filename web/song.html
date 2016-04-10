@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en" ng-app="myapp">
+	<head>
+		<script src="http://code.angularjs.org/1.2.10/angular.min.js"></script>
+		<title>Jukebox</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+	</head>
+	<body ng-controller="MainCtl">
+		<nav class="navbar navbar-inverse" role="navigation">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="#">Jukebox</a>
+				</div>
+
+				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+					<ul class="nav navbar-nav">
+						<li><a href="#">Home</a></li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						<li class="dropdown">
+							<a class="dropdown-toggle" data-toggle="dropdown">Project Files <b class="caret"></b></a>
+							<ul class="dropdown-menu" role="menu">
+								<li><a href="#">Report</a></li>
+								<li><a href="#">Source Code</a></li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		<div class="page-header text-center">
+			<h1>Jukebox</h1>
+			<h4>
+				<a href="https://www.cs.northwestern.edu/academics/courses/394/">
+					Northwestern University EECS 394
+				</a>
+			</h4>
+		</div>
+		<div class="jumbotron">
+			<button class="btn btn-primary pull-right" ng-click="add()">
+				<i class="fa fa-plus"></i> Add song
+			</button>
+			<h1>Party Playlist 2016!</h1>
+		</div>
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-sm-3 well">
+					<h3>Songs</h3>
+					<ul class="nav nav-pills nav-stacked">
+						<li ng-class="{active: s.title == selected.title}" ng-repeat="s in songs">
+							<a href="" ng-click="get($index)">{{s.title}}</a>
+							{{s.score}}
+							<button class="btn btn-primary" ng-click="like($index)">
+								&hearts;
+							</button>
+						</li>
+					</ul>
+				</div>
+				<div class="col-sm-6" ng-show="selected">
+					<h2>{{selected.title}}</h2>
+					<dl class="dl-horizontal">
+						<dt>Artist:</dt>
+						<dd>{{selected.artist}}</dd>
+					</dl>
+				</div>
+				<div class="col-sm-3" ng-show="selected">
+					<button class="btn btn-primary form-control" ng-click="update(selected.ID)">
+						<i class="fa fa-pencil"></i> Update this Song
+					</button>
+					<button class="btn btn-danger form-control" ng-click="remove(selected.ID)">
+						<i class="fa fa-trash-o"></i> Remove this Song
+					</button>
+				</div>
+			</div>
+		</div>
+	<script src="http://code.angularjs.org/1.2.10/angular-resource.min.js"></script>
+	<script>
+	// new dependency: ngResource is included just above
+	var myapp = new angular.module("myapp", []);
+
+	// inject the $resource dependency here
+	myapp.controller("MainCtl",function($scope, $http){
+
+		$scope.list = function(){
+			$http.get('/songs').success(function(response){
+				$scope.songs = response;
+			});
+		}
+
+		$scope.list();
+
+		$scope.selected = null;
+
+		$scope.get = function(idx) {
+			$scope.selected = $scope.songs[idx];
+		}
+
+		$scope.like = function(idx){
+			$http.post('/songs/'+$scope.songs[idx].ID+'/upvote').success(function(response){
+			$scope.songs[idx].score = response.score;
+			});
+		}
+
+
+		$scope.add = function(){
+			var title = prompt("Enter the song's title.");
+			if(title == null){
+				return;
+			}
+			var artist = prompt("Enter the sons's artist.");
+			if(artist == null){
+				return;
+			}
+			var album = prompt("Enter the song's album.");
+
+			var new_song = {
+				"Title" : title,
+				"Artist" : artist,
+				"Album" : album
+			};
+			$http.post('/songs', new_song).success(function(response){
+				$scope.songs.push(response)
+			});
+			// $scope.list();
+		}
+
+		$scope.update = function(id){
+			var title = prompt("Enter the song's title.");
+			if(title == null){
+				return;
+			}
+			var artist = prompt("Enter the new artist.");
+			if(artist == null){
+				return;
+			}
+			var album = prompt("Enter the new album.");
+
+			$scope.selected.title = title;
+			$scope.selected.artist = artist;
+			$scope.selected.album = album;
+
+			$http.post('/songs/'+id, $scope.selected).success(function(response){
+				$scope.selected = response;
+			});
+		}
+
+		$scope.remove = function(id){
+			console.log(id);
+			$http.delete('/songs/'+id).success(function(response){
+				$scope.songs.pop(response)
+			});
+		}
+
+	});
+</script>
+	</body>
+</html>

@@ -1,0 +1,12 @@
+[
+  {
+      "ID": 3,
+      "CreatedAt": "2016-04-09T09:49:48.609481-05:00",
+      "UpdatedAt": "2016-04-09T09:49:48.609481-05:00",
+      "DeletedAt": null,
+      "title": "abc",
+      "artist": "def",
+      "album": "bnc",
+      "score": 1
+  }
+]
